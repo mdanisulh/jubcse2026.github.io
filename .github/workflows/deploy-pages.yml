@@ -4,21 +4,31 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    types: [closed]
+    types: [ closed ]
     branches: [ main ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: .
 
-  # Deployment is handled by the Pages Deploy action automatically
-  # This workflow uploads the repository content as the Pages artifact.
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
